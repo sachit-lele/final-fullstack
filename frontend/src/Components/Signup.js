@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleSignup = event => {
     event.preventDefault();
@@ -13,7 +13,7 @@ function Signup() {
     console.log('Password:', password);
 
     // Redirecting to login page after signup (or directly to dashboard)
-    history.push('/login');
+    navigate('/login');
   };
 
   return (

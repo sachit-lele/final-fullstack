@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleLogin = event => {
     event.preventDefault();
@@ -13,7 +13,7 @@ function Login() {
     console.log('Password:', password);
 
     // Redirecting to dashboard without authentication
-    history.push('/stock-predictor');
+    navigate('/stock-predictor');
   };
 
   return (

@@ -1,6 +1,6 @@
 // App.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Signup from './Components/Signup';
 import Login from './Components/Login';
 import Dashboard from './Components/Dashboard';
@@ -10,12 +10,12 @@ function App() {
   return (
     <Router>
       <div>
-        <Switch>
+        <Routes>
           <Route exact path="/" component={Signup} />
           <Route path="/login" component={Login} />
           <Route path="/dashboard" component={Dashboard} /> 
           <Route path="/stock-predictor" component={StockPredictor} />
-        </Switch>
+        </Routes>
       </div>
     </Router>
   );
