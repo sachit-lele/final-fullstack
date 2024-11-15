@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Base URLs for different APIs
 const API_BASE_URL_AdversarialModel = '/api';  // Azure model API base URL
-const API_BASE_URL_Ollama = 'http://localhost:5000';  // Ollama running locally on port 5000
+const API_BASE_URL_Ollama = 'http://localhost:';  // Ollama running locally on port 5000
 
 // Function to generate prediction from the Azure model
 export const generatePrediction = async (textInput, lastRealOhlcv) => {

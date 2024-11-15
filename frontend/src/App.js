@@ -13,8 +13,8 @@ function App() {
         <Switch>
           <Route exact path="/" component={Signup} />
           <Route path="/login" component={Login} />
-          <Route path="/dashboard" component={Dashboard} /> {/* No need for PrivateRoute */}
-          <Route path="/stock-predictor" component={StockPredictor} /> {/* No need for PrivateRoute */}
+          <Route path="/dashboard" component={Dashboard} /> 
+          <Route path="/stock-predictor" component={StockPredictor} />
         </Switch>
       </div>
     </Router>

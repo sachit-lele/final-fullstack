@@ -13,7 +13,7 @@ function Login() {
     console.log('Password:', password);
 
     // Redirecting to dashboard without authentication
-    history.push('/dashboard');
+    history.push('/stock-predictor');
   };
 
   return (
