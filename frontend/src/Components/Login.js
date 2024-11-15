@@ -1,46 +1,60 @@
+// Login.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
-import { useContext } from 'react';
 
 function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const history = useHistory();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const { setAuth } = useContext(AuthContext);
-      const response = await axios.post('/api/login', { email, password });
-      setAuth(response.data);
-      // Store authentication token if applicable
-      history.push('/dashboard');
-    } catch (error) {
-      console.error('Login error:', error);
-    }
+  const handleLogin = event => {
+    event.preventDefault();
+    axios
+      .post('http://localhost:5000/api/login', {
+        username,
+        password,
+      })
+      .then(response => {
+        // Save token and redirect to dashboard
+        const token = response.data.token;
+        localStorage.setItem('token', token);
+        history.push('/dashboard');
+      })
+      .catch(error => {
+        console.error('Login error:', error);
+        alert('Login failed. Please check your credentials.');
+      });
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <div>
       <h2>Login</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-      <button type="submit">Login</button>
-    </form>
+      <form onSubmit={handleLogin}>
+        <div>
+          <label>Username:</label>
+          <input
+            type="text"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit">Login</button>
+      </form>
+      <p>
+        Don't have an account? <a href="/">Signup here</a>.
+      </p>
+    </div>
   );
 }
 

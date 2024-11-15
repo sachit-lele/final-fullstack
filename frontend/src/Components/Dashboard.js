@@ -1,41 +1,48 @@
-import React, { useState } from 'react';
+// Dashboard.js
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import StockPredictor from './StockPredictor';
 
 function Dashboard() {
-  const [prediction, setPrediction] = useState('');
-  const [summary, setSummary] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [azurePrediction, setAzurePrediction] = useState(null);
+  const [generatedSummary, setGeneratedSummary] = useState('');
+  const token = localStorage.getItem('token');
 
-  const generateData = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      // Fetch prediction
-      const predictionResponse = await axios.post(process.env.REACT_APP_PREDICTION_API_URL);
-      setPrediction(predictionResponse.data.prediction);
+  useEffect(() => {
+    const fetchData = () => {
+      const inputData = {
+        // Your input data here
+      };
 
-      // Fetch summary
-      const summaryResponse = await axios.post(process.env.REACT_APP_SUMMARY_API_URL);
-      setSummary(summaryResponse.data.summary);
-    } catch (err) {
-      console.error('Error generating data:', err);
-      setError('Failed to generate data. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+      axios
+        .post(
+          'http://localhost:5000/api/get_summary',
+          { input_data: inputData },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then(response => {
+          setAzurePrediction(response.data.azure_prediction);
+          setGeneratedSummary(response.data.generated_summary);
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          alert('Failed to fetch data. Please try again.');
+        });
+    };
+
+    fetchData();
+  }, [token]);
 
   return (
     <div>
       <h1>Dashboard</h1>
-      <button onClick={generateData} disabled={loading}>
-        {loading ? 'Generating...' : 'Generate Predictions and Summary'}
-      </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      
-      <StockPredictor summary={summary} prediction={prediction} llmLoading={loading} />
+      <h2>Azure Model Prediction:</h2>
+      <pre>{JSON.stringify(azurePrediction, null, 2)}</pre>
+      <h2>Generated Summary:</h2>
+      <p>{generatedSummary}</p>
     </div>
   );
 }
