@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generatePrediction, pingServer } from './api.js';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import axios from 'axios';
-
+/* http://20.116.216.53:5000/:splat 200!*/
 const API_BASE_URL = '/api';
 const OLLAMA_API_URL = 'http://localhost:11411/v1/completions';  // Adjust the URL as per your Ollama setup
 
