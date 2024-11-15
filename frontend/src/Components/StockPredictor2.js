@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { generatePrediction, getOverviewFromHuggingFacee, pingServer } from './api.js';
+import { generatePrediction, pingServer } from './api.js';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import axios from 'axios';
-
+/* http://20.116.216.53:5000/:splat 200!*/
 const API_BASE_URL = '/api';
+const OLLAMA_API_URL = 'http://localhost:11411/v1/completions';  // Adjust the URL as per your Ollama setup
 
 const StockPredictor = () => {
   const [textInput, setTextInput] = useState('');
@@ -17,7 +18,11 @@ const StockPredictor = () => {
   useEffect(() => {
     const fetchLastEntry = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/last_entry`);
+        const response = await axios.get(`${API_BASE_URL}/last_entry`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`, // Include token
+          },
+        });
         setLastRealOhlcv(response.data.last_ohlcv || []);
         setColumnNames(response.data.column_names || []);
       } catch (error) {
@@ -43,7 +48,7 @@ const StockPredictor = () => {
         console.error("Error: lastRealOhlcv is empty or invalid");
         return;
       }
-      
+
       await pingServer();
 
       const generatedValues = await generatePrediction(textInput, lastRealOhlcv);
@@ -56,7 +61,9 @@ const StockPredictor = () => {
       const ohlcvString = `Generate overview for the stock values:\n${labeledData}`;
 
       setLlmLoading(true);
-      const llmSummary = await getOverviewFromHuggingFacee(ohlcvString);
+
+      // Sending request to Ollama API
+      const llmSummary = await getSummaryFromOllama(ohlcvString);
       setSummary(llmSummary);
       setLlmLoading(false);
 
@@ -67,10 +74,27 @@ const StockPredictor = () => {
     setLoading(false);
   };
 
+  // Function to get summary from Ollama API
+  const getSummaryFromOllama = async (inputText) => {
+    try {
+      const response = await axios.post(OLLAMA_API_URL, {
+        model: 'llama',  // Choose the correct model if needed
+        prompt: inputText,
+        max_tokens: 150,  // Adjust based on how long the summary should be
+        temperature: 0.7, // Tweak as per your requirement
+      });
+
+      return response.data.choices[0].text.trim(); // Assuming this is how Ollama returns the summary
+    } catch (error) {
+      console.error("Error fetching summary from Ollama:", error);
+      return "Failed to generate summary from Ollama.";
+    }
+  };
+
   return (
     <div className="bg-white p-10 rounded-lg shadow-lg max-w-3xl mx-auto">
       <h1 className="text-3xl font-extrabold mb-8 text-blue-800 text-center">Stock Predictor</h1>
-      
+
       <div className="flex flex-col md:flex-row gap-6">
         <textarea
           value={textInput}
@@ -79,7 +103,7 @@ const StockPredictor = () => {
           rows="6"
           className="flex-1 p-4 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition-colors resize-none"
         />
-        
+
         <button
           onClick={handlePredict}
           disabled={loading || llmLoading}
@@ -90,12 +114,13 @@ const StockPredictor = () => {
           {loading ? 'Generating...' : 'Generate Prediction'}
         </button>
       </div>
-      
+
       {generatedOhlcv.length > 0 && (
         <div className="mt-10">
           <h2 className="text-2xl font-bold mb-6 text-blue-800">Generated OHLCV Data</h2>
           <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={generatedOhlcv.map((value, i) => ({ name: columnNames[i] || `Point ${i + 1}`, value }))}>              <XAxis dataKey="name" tick={{ fill: '#4b5563' }} />
+            <LineChart data={generatedOhlcv.map((value, i) => ({ name: columnNames[i] || `Point ${i + 1}`, value }))}>
+              <XAxis dataKey="name" tick={{ fill: '#4b5563' }} />
               <YAxis tick={{ fill: '#4b5563' }} />
               <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
               <Tooltip
@@ -112,13 +137,13 @@ const StockPredictor = () => {
           </ResponsiveContainer>
         </div>
       )}
-      
+
       {llmLoading && (
         <div className="mt-8 text-gray-500 italic text-center">
           Waiting for LLM response...
         </div>
       )}
-      
+
       {summary && !llmLoading && (
         <div className="mt-10">
           <h2 className="text-2xl font-bold mb-4 text-blue-800">Generated Summary</h2>
