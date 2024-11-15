@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import StockPredictor from './StockPredictor.js';
-import { pingServer } from './api.js';
+import StockPredictor from './Components/StockPredictor.js';
+import { pingServer } from './Components/api.js';
 
 function App() {
   useEffect(() => {
