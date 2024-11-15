@@ -1,28 +1,19 @@
-// Signup.js
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 
 function Signup() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const history = useHistory();
 
   const handleSignup = event => {
     event.preventDefault();
-    axios
-      .post('http://localhost:5000/api/signup', {
-        username,
-        password,
-      })
-      .then(response => {
-        // Redirect to login on success
-        history.push('/login');
-      })
-      .catch(error => {
-        console.error('Signup error:', error);
-        alert('Signup failed. Please try again.');
-      });
+    // Logic to handle signup (e.g., just log the email and password)
+    console.log('Email:', email);
+    console.log('Password:', password);
+
+    // Redirecting to login page after signup (or directly to dashboard)
+    history.push('/login');
   };
 
   return (
@@ -30,11 +21,11 @@ function Signup() {
       <h2>Signup</h2>
       <form onSubmit={handleSignup}>
         <div>
-          <label>Username:</label>
+          <label>Email:</label>
           <input
-            type="text"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
             required
           />
         </div>

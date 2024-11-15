@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://20.116.216.53:5000';
-const MODEL_ID = 'Abiggj99/stock-summary-model'; // Replace with your specific model ID
-const HUGGING_FACE_API_KEY = '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';
+// Base URLs for different APIs
+const API_BASE_URL_AdversarialModel = '/api';  // Azure model API base URL
+const API_BASE_URL_Ollama = 'http://localhost:5000';  // Ollama running locally on port 5000
 
+// Function to generate prediction from the Azure model
 export const generatePrediction = async (textInput, lastRealOhlcv) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/generate`, {
+    const response = await axios.post(`${API_BASE_URL_AdversarialModel}/generate`, {
       text_input: textInput,
       last_real_ohlcv: lastRealOhlcv,
     });
@@ -17,45 +18,33 @@ export const generatePrediction = async (textInput, lastRealOhlcv) => {
   }
 };
 
-export const getOverviewFromHuggingFace = async (ohlcvData, retries = 3) => {
+// Function to ping the Azure server
+export const pingServer = async () => {
   try {
-    const response = await fetch(`https://api-inference.huggingface.co/models/${MODEL_ID}`, {
-      method: 'POST',
+    await axios.get(`${API_BASE_URL_AdversarialModel}/ping`, {
       headers: {
-        Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`, // Optional: Ensure token validity for Azure API
       },
-      body: JSON.stringify({ inputs: ohlcvData }),
     });
-    const data = await response.json();
-
-    if (response.status === 503 && retries > 0) {  // 503 indicates model is loading
-      const waitTime = data.estimated_time * 1000 || 20000; // Default to 20s if no estimate
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
-      return getOverviewFromHuggingFace(ohlcvData, retries - 1);
-    }
-    
-    if (!response.ok) throw new Error(data.error || 'Error from model');
-    
-    // Check the response structure for summary text
-    if (data && Array.isArray(data) && data[0]?.generated_text) {
-      return data[0].generated_text;
-    } else {
-      console.warn("Unexpected response format:", data);
-      return "";
-    }
   } catch (error) {
-    console.error("Error generating overview:", error.message);
+    console.error("Server ping failed:", error);
     throw error;
   }
 };
 
-export const pingServer = async () => {
+// Function to get summary from the locally running Ollama
+export const getSummaryFromOllama = async (ohlcvString) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/ping`);
-    return response.data;
+    const response = await axios.post(`${API_BASE_URL_Ollama}/generate_summary`, {
+      ohlcv_string: ohlcvString,
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,  // Remove if Ollama doesn't require authentication locally
+      },
+    });
+    return response.data.summary;
   } catch (error) {
-    console.error("Error pinging server:", error);
+    console.error("Summary generation failed:", error);
     throw error;
   }
 };

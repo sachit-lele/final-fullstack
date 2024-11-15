@@ -1,9 +1,10 @@
+// App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import Signup from './Signup';
-import Login from './Login';
-import Dashboard from './Dashboard';
-import PrivateRoute from './PrivateRoute';
+import Signup from './Components/Signup';
+import Login from './Components/Login';
+import Dashboard from './Components/Dashboard';
+import StockPredictor from './Components/StockPredictor'; // Import the component
 
 function App() {
   return (
@@ -12,7 +13,8 @@ function App() {
         <Switch>
           <Route exact path="/" component={Signup} />
           <Route path="/login" component={Login} />
-          <PrivateRoute path="/dashboard" component={Dashboard} />
+          <Route path="/dashboard" component={Dashboard} /> {/* No need for PrivateRoute */}
+          <Route path="/stock-predictor" component={StockPredictor} /> {/* No need for PrivateRoute */}
         </Switch>
       </div>
     </Router>

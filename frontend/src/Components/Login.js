@@ -1,30 +1,19 @@
-// Login.js
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 
 function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const history = useHistory();
 
   const handleLogin = event => {
     event.preventDefault();
-    axios
-      .post('http://localhost:5000/api/login', {
-        username,
-        password,
-      })
-      .then(response => {
-        // Save token and redirect to dashboard
-        const token = response.data.token;
-        localStorage.setItem('token', token);
-        history.push('/dashboard');
-      })
-      .catch(error => {
-        console.error('Login error:', error);
-        alert('Login failed. Please check your credentials.');
-      });
+    // Logic to handle login (e.g., just redirect to dashboard for now)
+    console.log('Email:', email);
+    console.log('Password:', password);
+
+    // Redirecting to dashboard without authentication
+    history.push('/dashboard');
   };
 
   return (
@@ -32,11 +21,11 @@ function Login() {
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
         <div>
-          <label>Username:</label>
+          <label>Email:</label>
           <input
-            type="text"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
             required
           />
         </div>
@@ -52,7 +41,7 @@ function Login() {
         <button type="submit">Login</button>
       </form>
       <p>
-        Don't have an account? <a href="/">Signup here</a>.
+        Don't have an account? <a href="/signup">Signup here</a>.
       </p>
     </div>
   );
