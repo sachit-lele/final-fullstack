@@ -1,23 +1,23 @@
-// App.js
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Signup from './Components/Signup';
-import Login from './Components/Login';
-import Dashboard from './Components/Dashboard';
-import StockPredictor from './Components/StockPredictor'; // Import the component
+import React, { useEffect } from 'react';
+import StockPredictor from './StockPredictor.js';
+import { pingServer } from './api.js';
 
 function App() {
+  useEffect(() => {
+    const checkServer = async () => {
+      try {
+        await pingServer();
+      } catch {
+        console.error("Server is down!");
+      }
+    };
+    checkServer();
+  }, []);
+
   return (
-    <Router>
-      <div>
-        <Routes>
-          <Route exact path="/" component={Signup} />
-          <Route path="/login" component={Login} />
-          <Route path="/dashboard" component={Dashboard} /> 
-          <Route path="/stock-predictor" component={StockPredictor} />
-        </Routes>
-      </div>
-    </Router>
+    <div className="App">
+      <StockPredictor />
+    </div>
   );
 }
 
